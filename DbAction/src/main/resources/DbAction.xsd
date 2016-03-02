@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2011 Fernando Ribeiro
+
+This file is part of JBoss ESB Utils.
+
+JBoss ESB Utils is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+JBoss ESB Utils is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with JBoss ESB Utils. If not, see <http://www.gnu.org/licenses/>.
+-->
+<xs:schema elementFormDefault="qualified"
+	targetNamespace="http://www.jboss.org/soa/esb/actions/db/model"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.jboss.org/soa/esb/actions/db/model">
+	<xs:complexType name="BlobField" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Field" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BlobParam" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Param" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BoolField" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Field" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="BoolParam" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Param" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ClobField" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Field" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ClobParam" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Param" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DateField" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Field" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DateParam" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Param" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Field" abstract="true" mixed="true">
+		<xs:attribute name="name" type="xs:string" use="required" />
+	</xs:complexType>
+	<xs:complexType name="DecField" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Field" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DecParam" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Param" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="IntField" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Field" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="IntParam" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Param" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="NumField" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Field" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="NumParam" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Param" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Param" abstract="true" mixed="true">
+		<xs:attribute name="id" type="xs:int" use="required" />
+	</xs:complexType>
+	<xs:complexType name="ResultSet">
+		<xs:sequence>
+			<xs:element name="Row" type="tns:Row" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Row">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:group ref="tns:FieldTypes" />
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StrField" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Field" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="StrParam" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tns:Param" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="DbRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Expr" type="xs:string" />
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:group ref="tns:ParamTypes" />
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DbResponse">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="ResultSet" type="tns:ResultSet" />
+				<xs:element name="UpdateCount" type="xs:int" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+	<xs:group name="FieldTypes">
+		<xs:sequence>
+			<xs:element name="Blob" type="tns:BlobField" nillable="true" />
+			<xs:element name="Bool" type="tns:BoolField" nillable="true" />
+			<xs:element name="Clob" type="tns:ClobField" nillable="true" />
+			<xs:element name="Date" type="tns:DateField" nillable="true" />
+			<xs:element name="Dec" type="tns:DecField" nillable="true" />
+			<xs:element name="Int" type="tns:IntField" nillable="true" />
+			<xs:element name="Num" type="tns:NumField" nillable="true" />
+			<xs:element name="Str" type="tns:StrField" nillable="true" />
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="ParamTypes">
+		<xs:sequence>
+			<xs:element name="Blob" type="tns:BlobParam" nillable="true" />
+			<xs:element name="Bool" type="tns:BoolParam" nillable="true" />
+			<xs:element name="Clob" type="tns:ClobParam" nillable="true" />
+			<xs:element name="Date" type="tns:DateParam" nillable="true" />
+			<xs:element name="Dec" type="tns:DecParam" nillable="true" />
+			<xs:element name="Int" type="tns:IntParam" nillable="true" />
+			<xs:element name="Num" type="tns:NumParam" nillable="true" />
+			<xs:element name="Str" type="tns:StrParam" nillable="true" />
+		</xs:sequence>
+	</xs:group>
+</xs:schema>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2011 Fernando Ribeiro
+
+This file is part of JBoss ESB Utils.
+
+JBoss ESB Utils is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+JBoss ESB Utils is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with JBoss ESB Utils. If not, see <http://www.gnu.org/licenses/>.
+-->
+<jaxb:bindings version="2.1" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" schemaLocation="DbAction.xsd">
+	<jaxb:bindings
+		node="//xs:complexType[@name='ResultSet']//xs:element[@name='Row']">
+		<jaxb:property name="rowList" />
+	</jaxb:bindings>
+	<jaxb:bindings node="//xs:complexType[@name='Row']//xs:choice">
+		<jaxb:property name="fieldElementList"
+			generateElementProperty="true" />
+	</jaxb:bindings>
+	<jaxb:bindings node="//xs:element[@name='DbRequest']//xs:choice">
+		<jaxb:property name="paramElementList"
+			generateElementProperty="true" />
+	</jaxb:bindings>
+	<jaxb:bindings node="//xs:element[@name='DbResponse']//xs:choice">
+		<jaxb:property name="result" />
+	</jaxb:bindings>
+</jaxb:bindings>
