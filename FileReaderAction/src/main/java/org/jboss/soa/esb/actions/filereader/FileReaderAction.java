@@ -23,12 +23,12 @@ import org.jboss.soa.esb.helpers.ConfigTree;
 import org.jboss.soa.esb.message.Message;
 import org.jboss.soa.esb.message.MessagePayloadProxy;
 
-public final class FileReaderAction extends AbstractActionPipelineProcessor {
-	private static final String ATTR_FILE = "file";
-	private static final String ATTR_SOURCE = "source";
+public class FileReaderAction extends AbstractActionPipelineProcessor {
+	private static String ATTR_FILE = "file";
+	private static String ATTR_SOURCE = "source";
 
-	private static final String SOURCE_CLASSPATH = "classpath";
-	private static final String SOURCE_FILESYSTEM = "filesystem";
+	private static String SOURCE_CLASSPATH = "classpath";
+	private static String SOURCE_FILESYSTEM = "filesystem";
 
 	private String file;
 
@@ -36,7 +36,7 @@ public final class FileReaderAction extends AbstractActionPipelineProcessor {
 
 	private String source;
 
-	public FileReaderAction(final ConfigTree conf)
+	public FileReaderAction(ConfigTree conf)
 			throws ConfigurationException {
 		file = conf.getRequiredAttribute(ATTR_FILE);
 
@@ -45,10 +45,10 @@ public final class FileReaderAction extends AbstractActionPipelineProcessor {
 		source = conf.getRequiredAttribute(ATTR_SOURCE);
 	}
 
-	public Message process(final Message msg) throws ActionProcessingException {
+	public Message process(Message msg) throws ActionProcessingException {
 
 		try {
-			final StringBuffer buf = new StringBuffer();
+			StringBuffer buf = new StringBuffer();
 
 			Reader reader = null;
 
@@ -70,7 +70,7 @@ public final class FileReaderAction extends AbstractActionPipelineProcessor {
 			reader.close();
 
 			proxy.setPayload(msg, buf.toString());
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new ActionProcessingException("Can't process message", e);
 		}
 

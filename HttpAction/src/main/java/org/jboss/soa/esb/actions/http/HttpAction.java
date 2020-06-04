@@ -34,21 +34,21 @@ import org.jboss.soa.esb.message.Message;
 import org.jboss.soa.esb.message.MessagePayloadProxy;
 import org.jboss.soa.esb.message.Properties;
 
-public final class HttpAction extends AbstractActionPipelineProcessor {
-	private static final String ATTR_METHOD = "method";
-	private static final String ATTR_URI = "uri";
+public class HttpAction extends AbstractActionPipelineProcessor {
+	private static String ATTR_METHOD = "method";
+	private static String ATTR_URI = "uri";
 
-	private static final String METHOD_DELETE = "DELETE";
-	private static final String METHOD_GET = "GET";
-	private static final String METHOD_POST = "POST";
-	private static final String METHOD_PUT = "PUT";
+	private static String METHOD_DELETE = "DELETE";
+	private static String METHOD_GET = "GET";
+	private static String METHOD_POST = "POST";
+	private static String METHOD_PUT = "PUT";
 
-	private static final Pattern PATTERN_HEADER = Pattern
+	private static Pattern PATTERN_HEADER = Pattern
 			.compile("org\\.jboss\\.soa\\.esb\\.actions\\.http\\.header\\.(.*)");
-	private static final Pattern PATTERN_PARAM = Pattern
+	private static Pattern PATTERN_PARAM = Pattern
 			.compile("org\\.jboss\\.soa\\.esb\\.actions\\.http\\.param\\.(.*)");
 
-	private static final String PREFIX_HEADER = "org.jboss.soa.esb.actions.http.header.";
+	private static String PREFIX_HEADER = "org.jboss.soa.esb.actions.http.header.";
 
 	private String method;
 
@@ -56,7 +56,7 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 
 	private String uri;
 
-	public HttpAction(final ConfigTree conf) throws ConfigurationException {
+	public HttpAction(ConfigTree conf) throws ConfigurationException {
 		method = conf.getRequiredAttribute(ATTR_METHOD);
 
 		proxy = new MessagePayloadProxy(conf);
@@ -64,20 +64,20 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 		uri = conf.getRequiredAttribute(ATTR_URI);
 	}
 
-	public Message process(final Message msg) throws ActionProcessingException {
+	public Message process(Message msg) throws ActionProcessingException {
 
 		try {
-			final HttpClient client = new HttpClient();
+			HttpClient client = new HttpClient();
 
-			final Properties props = msg.getProperties();
+			Properties props = msg.getProperties();
 
-			final String[] names = props.getNames();
+			String[] names = props.getNames();
 
 			if (METHOD_DELETE.equals(method)) {
-				final HttpMethodBase req = new DeleteMethod(uri);
+				HttpMethodBase req = new DeleteMethod(uri);
 
 				for (int i = 0; i < names.length; i++) {
-					final Matcher headerMatcher = PATTERN_HEADER
+					Matcher headerMatcher = PATTERN_HEADER
 							.matcher(names[i]);
 
 					if (headerMatcher.find())
@@ -89,7 +89,7 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 
 				client.executeMethod(req);
 
-				final Header[] headers = req.getResponseHeaders();
+				Header[] headers = req.getResponseHeaders();
 
 				for (int i = 0; i < headers.length; i++)
 					props.setProperty(PREFIX_HEADER + headers[i].getName(),
@@ -97,12 +97,12 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 
 				proxy.setPayload(msg, req.getResponseBodyAsString());
 			} else if (METHOD_GET.equals(method)) {
-				final HttpMethodBase req = new GetMethod(uri);
+				HttpMethodBase req = new GetMethod(uri);
 
-				final List<NameValuePair> paramList = new ArrayList<NameValuePair>();
+				List<NameValuePair> paramList = new ArrayList<NameValuePair>();
 
 				for (int i = 0; i < names.length; i++) {
-					final Matcher headerMatcher = PATTERN_HEADER
+					Matcher headerMatcher = PATTERN_HEADER
 							.matcher(names[i]);
 
 					if (headerMatcher.find()) {
@@ -113,7 +113,7 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 						continue;
 					}
 
-					final Matcher paramMatcher = PATTERN_PARAM
+					Matcher paramMatcher = PATTERN_PARAM
 							.matcher(names[i]);
 
 					if (paramMatcher.find())
@@ -127,7 +127,7 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 
 				client.executeMethod(req);
 
-				final Header[] headers = req.getResponseHeaders();
+				Header[] headers = req.getResponseHeaders();
 
 				for (int i = 0; i < headers.length; i++)
 					props.setProperty(PREFIX_HEADER + headers[i].getName(),
@@ -135,10 +135,10 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 
 				proxy.setPayload(msg, req.getResponseBodyAsString());
 			} else if (METHOD_POST.equals(method)) {
-				final PostMethod req = new PostMethod(uri);
+				PostMethod req = new PostMethod(uri);
 
 				for (int i = 0; i < names.length; i++) {
-					final Matcher headerMatcher = PATTERN_HEADER
+					Matcher headerMatcher = PATTERN_HEADER
 							.matcher(names[i]);
 
 					if (headerMatcher.find()) {
@@ -149,7 +149,7 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 						continue;
 					}
 
-					final Matcher paramMatcher = PATTERN_PARAM
+					Matcher paramMatcher = PATTERN_PARAM
 							.matcher(names[i]);
 
 					if (paramMatcher.find())
@@ -164,7 +164,7 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 
 				client.executeMethod(req);
 
-				final Header[] headers = req.getResponseHeaders();
+				Header[] headers = req.getResponseHeaders();
 
 				for (int i = 0; i < headers.length; i++)
 					props.setProperty(PREFIX_HEADER + headers[i].getName(),
@@ -172,10 +172,10 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 
 				proxy.setPayload(msg, req.getResponseBodyAsString());
 			} else if (METHOD_PUT.equals(method)) {
-				final EntityEnclosingMethod req = new PutMethod(uri);
+				EntityEnclosingMethod req = new PutMethod(uri);
 
 				for (int i = 0; i < names.length; i++) {
-					final Matcher headerMatcher = PATTERN_HEADER
+					Matcher headerMatcher = PATTERN_HEADER
 							.matcher(names[i]);
 
 					if (headerMatcher.find())
@@ -190,7 +190,7 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 
 				client.executeMethod(req);
 
-				final Header[] headers = req.getResponseHeaders();
+				Header[] headers = req.getResponseHeaders();
 
 				for (int i = 0; i < headers.length; i++)
 					props.setProperty(PREFIX_HEADER + headers[i].getName(),
@@ -199,7 +199,7 @@ public final class HttpAction extends AbstractActionPipelineProcessor {
 				proxy.setPayload(msg, req.getResponseBodyAsString());
 			}
 
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new ActionProcessingException("Can't process message", e);
 		}
 

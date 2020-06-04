@@ -17,24 +17,24 @@ import org.apache.xalan.extensions.ExpressionContext;
 import org.apache.xml.utils.QName;
 import org.jboss.soa.esb.message.Properties;
 
-public final class MessagePropertyExtension {
-	private static final String PARAM_PROPERTIES = "properties";
+public class MessagePropertyExtension {
+	private static String PARAM_PROPERTIES = "properties";
 
-	public static Object getProperty(final ExpressionContext ctx,
-			final String name) throws TransformerException {
-		final Properties props = (Properties) ctx.getVariableOrParam(
+	public static Object getProperty(ExpressionContext ctx,
+			String name) throws TransformerException {
+		Properties props = (Properties) ctx.getVariableOrParam(
 				new QName(PARAM_PROPERTIES)).object();
 	
 		return props.getProperty(name);
 	}
 
-	public static Object getProperty(final ExpressionContext ctx,
-			final String name, final Object defaultVal)
+	public static Object getProperty(ExpressionContext ctx,
+			String name, Object defaultVal)
 			throws TransformerException {
-		final Properties props = (Properties) ctx.getVariableOrParam(
+		Properties props = (Properties) ctx.getVariableOrParam(
 				new QName(PARAM_PROPERTIES)).object();
 
-		final Object val = props.getProperty(name);
+		Object val = props.getProperty(name);
 
 		return (val != null) ? val : defaultVal;
 	}

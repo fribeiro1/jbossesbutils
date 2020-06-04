@@ -16,18 +16,18 @@ import org.jboss.soa.esb.actions.AbstractActionPipelineProcessor;
 import org.jboss.soa.esb.helpers.ConfigTree;
 import org.jboss.soa.esb.message.Message;
 
-public final class RemoveMessagePropertyAction extends
+public class RemoveMessagePropertyAction extends
 		AbstractActionPipelineProcessor {
-	private static final String ATTR_NAME = "name";
+	private static String ATTR_NAME = "name";
 
 	private String name;
 
-	public RemoveMessagePropertyAction(final ConfigTree conf)
+	public RemoveMessagePropertyAction(ConfigTree conf)
 			throws ConfigurationException {
 		name = conf.getRequiredAttribute(ATTR_NAME);
 	}
 
-	public Message process(final Message msg) {
+	public Message process(Message msg) {
 		msg.getProperties().remove(name);
 
 		return msg;

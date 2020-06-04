@@ -33,20 +33,20 @@ import org.jboss.soa.esb.message.MessagePayloadProxy;
 import org.jboss.soa.esb.message.Properties;
 import org.xml.sax.InputSource;
 
-public final class SetMessagePropertyAction extends
+public class SetMessagePropertyAction extends
 		AbstractActionPipelineProcessor {
 
 	@SuppressWarnings("unchecked")
-	private static final class NamespaceContext implements
+	private static class NamespaceContext implements
 			javax.xml.namespace.NamespaceContext {
 		private Map<String, String> nsMap;
 
-		private NamespaceContext(final Map<String, String> nsMap) {
+		private NamespaceContext(Map<String, String> nsMap) {
 			this.nsMap = nsMap;
 		}
 
 		@Override
-		public String getNamespaceURI(final String prefix) {
+		public String getNamespaceURI(String prefix) {
 
 			if (prefix == null)
 				throw new IllegalArgumentException("The prefix can't be null");
@@ -67,8 +67,8 @@ public final class SetMessagePropertyAction extends
 		}
 
 		@Override
-		public String getPrefix(final String uri) {
-			final Iterator prefixes = getPrefixes(uri);
+		public String getPrefix(String uri) {
+			Iterator prefixes = getPrefixes(uri);
 
 			if (!prefixes.hasNext())
 				return null;
@@ -77,12 +77,12 @@ public final class SetMessagePropertyAction extends
 		}
 
 		@Override
-		public Iterator getPrefixes(final String uri) {
+		public Iterator getPrefixes(String uri) {
 
 			if (uri == null)
 				throw new IllegalArgumentException("The URI can't be null");
 
-			final List<String> result = new ArrayList<String>();
+			List<String> result = new ArrayList<String>();
 
 			if (XMLConstants.NULL_NS_URI.equals(uri)) {
 				result.add(XMLConstants.DEFAULT_NS_PREFIX);
@@ -92,7 +92,7 @@ public final class SetMessagePropertyAction extends
 				result.add(XMLConstants.XMLNS_ATTRIBUTE);
 			} else {
 
-				for (final Map.Entry<String, String> entry : nsMap.entrySet())
+				for (Map.Entry<String, String> entry : nsMap.entrySet())
 
 					if (entry.getValue().equals(uri))
 						result.add(entry.getKey());
@@ -104,18 +104,18 @@ public final class SetMessagePropertyAction extends
 
 	}
 
-	private static final String ATTR_CONSTANT = "constant";
-	private static final String ATTR_MODE = "mode";
-	private static final String ATTR_NAME = "name";
-	private static final String ATTR_NAMESPACES = "namespaces";
-	private static final String ATTR_XPATH = "xpath";
+	private static String ATTR_CONSTANT = "constant";
+	private static String ATTR_MODE = "mode";
+	private static String ATTR_NAME = "name";
+	private static String ATTR_NAMESPACES = "namespaces";
+	private static String ATTR_XPATH = "xpath";
 
-	private static final XPathFactory FACTORY = XPathFactory.newInstance();
+	private static XPathFactory FACTORY = XPathFactory.newInstance();
 
-	private static final String MODE_CONSTANT = "Constant";
-	private static final String MODE_XPATH = "XPath";
+	private static String MODE_CONSTANT = "Constant";
+	private static String MODE_XPATH = "XPath";
 
-	private static final Pattern PATTERN_NAMESPACES = Pattern
+	private static Pattern PATTERN_NAMESPACES = Pattern
 			.compile("([-._:A-Za-z0-9]*)=([^,]*),?");
 
 	private String constant;
@@ -130,7 +130,7 @@ public final class SetMessagePropertyAction extends
 
 	private MessagePayloadProxy proxy;
 
-	public SetMessagePropertyAction(final ConfigTree conf)
+	public SetMessagePropertyAction(ConfigTree conf)
 			throws ConfigurationException {
 		constant = conf.getAttribute(ATTR_CONSTANT);
 
@@ -145,10 +145,10 @@ public final class SetMessagePropertyAction extends
 		expr = conf.getAttribute(ATTR_XPATH);
 	}
 
-	public Message process(final Message msg) throws ActionProcessingException {
+	public Message process(Message msg) throws ActionProcessingException {
 
 		try {
-			final Properties props = msg.getProperties();
+			Properties props = msg.getProperties();
 
 			if (MODE_CONSTANT.equals(mode)) {
 
@@ -158,13 +158,13 @@ public final class SetMessagePropertyAction extends
 			} else if (MODE_XPATH.equals(mode)) {
 
 				if (expr != null) {
-					final XPath xpath = FACTORY.newXPath();
+					XPath xpath = FACTORY.newXPath();
 
 					if (namespaces != null) {
-						final Map<String, String> nsMap = new HashMap<String, String>();
+						Map<String, String> nsMap = new HashMap<String, String>();
 
 						/* Configure the namespaces */
-						final Matcher matcher = PATTERN_NAMESPACES
+						Matcher matcher = PATTERN_NAMESPACES
 								.matcher(namespaces);
 
 						while (matcher.find())
@@ -173,7 +173,7 @@ public final class SetMessagePropertyAction extends
 						xpath.setNamespaceContext(new NamespaceContext(nsMap));
 					}
 
-					final String payload = (String) proxy.getPayload(msg);
+					String payload = (String) proxy.getPayload(msg);
 
 					props.setProperty(name, xpath.evaluate(expr,
 							new InputSource(new StringReader(payload))));
@@ -181,7 +181,7 @@ public final class SetMessagePropertyAction extends
 
 			}
 
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new ActionProcessingException("Can't process message", e);
 		}
 

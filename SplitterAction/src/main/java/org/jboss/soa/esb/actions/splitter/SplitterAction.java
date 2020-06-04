@@ -47,18 +47,18 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 @SuppressWarnings("unchecked")
-public final class SplitterAction extends AbstractActionPipelineProcessor {
+public class SplitterAction extends AbstractActionPipelineProcessor {
 
-	private static final class NamespaceContext implements
+	private static class NamespaceContext implements
 			javax.xml.namespace.NamespaceContext {
 		private Map<String, String> nsMap;
 
-		private NamespaceContext(final Map<String, String> nsMap) {
+		private NamespaceContext(Map<String, String> nsMap) {
 			this.nsMap = nsMap;
 		}
 
 		@Override
-		public String getNamespaceURI(final String prefix) {
+		public String getNamespaceURI(String prefix) {
 
 			if (prefix == null)
 				throw new IllegalArgumentException("The prefix can't be null");
@@ -79,8 +79,8 @@ public final class SplitterAction extends AbstractActionPipelineProcessor {
 		}
 
 		@Override
-		public String getPrefix(final String uri) {
-			final Iterator prefixes = getPrefixes(uri);
+		public String getPrefix(String uri) {
+			Iterator prefixes = getPrefixes(uri);
 
 			if (!prefixes.hasNext())
 				return null;
@@ -89,12 +89,12 @@ public final class SplitterAction extends AbstractActionPipelineProcessor {
 		}
 
 		@Override
-		public Iterator getPrefixes(final String uri) {
+		public Iterator getPrefixes(String uri) {
 
 			if (uri == null)
 				throw new IllegalArgumentException("The URI can't be null");
 
-			final List<String> result = new ArrayList<String>();
+			List<String> result = new ArrayList<String>();
 
 			if (XMLConstants.NULL_NS_URI.equals(uri)) {
 				result.add(XMLConstants.DEFAULT_NS_PREFIX);
@@ -104,7 +104,7 @@ public final class SplitterAction extends AbstractActionPipelineProcessor {
 				result.add(XMLConstants.XMLNS_ATTRIBUTE);
 			} else {
 
-				for (final Map.Entry<String, String> entry : nsMap.entrySet()) {
+				for (Map.Entry<String, String> entry : nsMap.entrySet()) {
 
 					if (entry.getValue().equals(uri))
 						result.add(entry.getKey());
@@ -118,22 +118,22 @@ public final class SplitterAction extends AbstractActionPipelineProcessor {
 
 	}
 
-	private static final String ATTR_NAMESPACES = "namespaces";
-	private static final String ATTR_ROUTE_TO = "route-to";
-	private static final String ATTR_SERVICE_CATEGORY = "service-category";
-	private static final String ATTR_SERVICE_NAME = "service-name";
-	private static final String ATTR_XPATH = "xpath";
+	private static String ATTR_NAMESPACES = "namespaces";
+	private static String ATTR_ROUTE_TO = "route-to";
+	private static String ATTR_SERVICE_CATEGORY = "service-category";
+	private static String ATTR_SERVICE_NAME = "service-name";
+	private static String ATTR_XPATH = "xpath";
 
-	private static final DocumentBuilderFactory BUILDER_FACTORY = DocumentBuilderFactory
+	private static DocumentBuilderFactory BUILDER_FACTORY = DocumentBuilderFactory
 			.newInstance();
 
-	private static final Pattern PATTERN_NAMESPACES = Pattern
+	private static Pattern PATTERN_NAMESPACES = Pattern
 			.compile("([-._:A-Za-z0-9]*)=([^,]*),?");
 
-	private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory
+	private static TransformerFactory TRANSFORMER_FACTORY = TransformerFactory
 			.newInstance();
 
-	private static final XPathFactory XPATH_FACTORY = XPathFactory
+	private static XPathFactory XPATH_FACTORY = XPathFactory
 			.newInstance();
 
 	private DocumentBuilder builder;
@@ -150,13 +150,13 @@ public final class SplitterAction extends AbstractActionPipelineProcessor {
 
 	private Transformer transformer;
 
-	public SplitterAction(final ConfigTree conf) throws Exception {
+	public SplitterAction(ConfigTree conf) throws Exception {
 		builder = BUILDER_FACTORY.newDocumentBuilder();
 
 		dlq = new LogicalEPR(ServiceInvoker.INTERNAL_SERVICE_CATEGORY,
 				ServiceInvoker.DEAD_LETTER_SERVICE_NAME);
 
-		final ConfigTree[] dstArr = conf.getChildren(ATTR_ROUTE_TO);
+		ConfigTree[] dstArr = conf.getChildren(ATTR_ROUTE_TO);
 
 		for (int i = 0; i < dstArr.length; i++)
 			dstList.add(new Service(dstArr[i]
@@ -172,19 +172,19 @@ public final class SplitterAction extends AbstractActionPipelineProcessor {
 		expr = conf.getRequiredAttribute(ATTR_XPATH);
 	}
 
-	public Message process(final Message origMsg)
+	public Message process(Message origMsg)
 			throws ActionProcessingException {
 
 		try {
 
 			if (expr != null) {
-				final XPath xpath = XPATH_FACTORY.newXPath();
+				XPath xpath = XPATH_FACTORY.newXPath();
 
 				if (namespaces != null) {
-					final Map<String, String> nsMap = new HashMap<String, String>();
+					Map<String, String> nsMap = new HashMap<String, String>();
 
 					/* Configure the namespaces */
-					final Matcher matcher = PATTERN_NAMESPACES
+					Matcher matcher = PATTERN_NAMESPACES
 							.matcher(namespaces);
 
 					while (matcher.find())
@@ -193,27 +193,27 @@ public final class SplitterAction extends AbstractActionPipelineProcessor {
 					xpath.setNamespaceContext(new NamespaceContext(nsMap));
 				}
 
-				final String payload = (String) proxy.getPayload(origMsg);
+				String payload = (String) proxy.getPayload(origMsg);
 
-				final NodeList resultList = (NodeList) xpath.evaluate(expr,
+				NodeList resultList = (NodeList) xpath.evaluate(expr,
 						new InputSource(new StringReader(payload)),
 						XPathConstants.NODESET);
 
-				for (final Service dst : dstList) {
-					final ServiceInvoker invoker = new ServiceInvoker(dst
+				for (Service dst : dstList) {
+					ServiceInvoker invoker = new ServiceInvoker(dst
 							.getCategory(), dst.getName());
 
 					for (int i = 0; i < resultList.getLength(); i++) {
-						final Message newMsg = origMsg.copy();
+						Message newMsg = origMsg.copy();
 
 						newMsg.getHeader().getCall().setReplyTo(dlq);
 
-						final Document doc = builder.newDocument();
+						Document doc = builder.newDocument();
 
 						doc.appendChild(doc
 								.importNode(resultList.item(i), true));
 
-						final Writer writer = new StringWriter();
+						Writer writer = new StringWriter();
 
 						transformer.transform(new DOMSource(doc),
 								new StreamResult(writer));
@@ -227,7 +227,7 @@ public final class SplitterAction extends AbstractActionPipelineProcessor {
 
 			}
 
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new ActionProcessingException("Can't process message", e);
 		}
 

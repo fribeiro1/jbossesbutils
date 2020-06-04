@@ -67,15 +67,15 @@ import org.jboss.soa.esb.message.Message;
 import org.jboss.soa.esb.message.MessagePayloadProxy;
 import org.xml.sax.InputSource;
 
-public final class DbAction extends AbstractActionPipelineProcessor {
-	private static final ObjectFactory FACTORY = new ObjectFactory();
+public class DbAction extends AbstractActionPipelineProcessor {
+	private static ObjectFactory FACTORY = new ObjectFactory();
 
-	private static final String MESSAGE = "Can't process message";
+	private static String MESSAGE = "Can't process message";
 
-	private static final String ATTR_DRIVER = "driver";
-	private static final String ATTR_PASSWORD = "password";
-	private static final String ATTR_URL = "url";
-	private static final String ATTR_USERNAME = "username";
+	private static String ATTR_DRIVER = "driver";
+	private static String ATTR_PASSWORD = "password";
+	private static String ATTR_URL = "url";
+	private static String ATTR_USERNAME = "username";
 
 	private String driver;
 
@@ -91,7 +91,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 	private String username;
 
-	public DbAction(final ConfigTree conf) throws ConfigurationException,
+	public DbAction(ConfigTree conf) throws ConfigurationException,
 			JAXBException {
 		proxy = new MessagePayloadProxy(conf);
 
@@ -103,7 +103,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 		username = conf.getAttribute(ATTR_USERNAME);
 
-		final JAXBContext ctx = JAXBContext
+		JAXBContext ctx = JAXBContext
 				.newInstance("org.jboss.soa.esb.actions.db.model");
 
 		unmarshaller = ctx.createUnmarshaller();
@@ -116,14 +116,14 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 		try {
 			Class.forName(driver);
-		} catch (final ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			throw new ActionLifecycleException("Can't initialize action", e);
 		}
 
 	}
 
 	@Override
-	public Message process(final Message msg) throws ActionProcessingException {
+	public Message process(Message msg) throws ActionProcessingException {
 		Connection dbConn = null;
 
 		PreparedStatement dbStmt = null;
@@ -133,21 +133,21 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 		try {
 			dbConn = DriverManager.getConnection(url, username, password);
 
-			final DbRequest req = (DbRequest) unmarshaller
+			DbRequest req = (DbRequest) unmarshaller
 					.unmarshal(new InputSource(new StringReader((String) proxy
 							.getPayload(msg))));
 
 			dbStmt = dbConn.prepareStatement(req.getExpr());
 
-			final List<JAXBElement<? extends Param>> paramElementList = req
+			List<JAXBElement<? extends Param>> paramElementList = req
 					.getParamElementList();
 
-			for (final JAXBElement<? extends Param> paramElement : paramElementList) {
-				final Param param = paramElement.getValue();
+			for (JAXBElement<? extends Param> paramElement : paramElementList) {
+				Param param = paramElement.getValue();
 
-				final boolean nil = paramElement.isNil();
+				boolean nil = paramElement.isNil();
 				
-				final int id = param.getId();
+				int id = param.getId();
 
 				if (param instanceof BlobParam) {
 
@@ -219,7 +219,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 			}
 
-			final DbResponse res = FACTORY.createDbResponse();
+			DbResponse res = FACTORY.createDbResponse();
 
 			boolean hasMoreResults = dbStmt.execute();
 
@@ -228,34 +228,34 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 			while ((hasMoreResults) || (dbCnt != -1)) {
 
 				if (hasMoreResults) {
-					final org.jboss.soa.esb.actions.db.model.ResultSet rs = FACTORY
+					org.jboss.soa.esb.actions.db.model.ResultSet rs = FACTORY
 							.createResultSet();
 
 					dbRs = dbStmt.getResultSet();
 
 					while (dbRs.next()) {
-						final Row row = FACTORY.createRow();
+						Row row = FACTORY.createRow();
 
-						final ResultSetMetaData dbMetaData = dbRs.getMetaData();
+						ResultSetMetaData dbMetaData = dbRs.getMetaData();
 
 						for (int j = 1; j <= dbMetaData.getColumnCount(); j++) {
-							final int type = dbMetaData.getColumnType(j);
+							int type = dbMetaData.getColumnType(j);
 
-							final String name = dbMetaData.getColumnName(j);
+							String name = dbMetaData.getColumnName(j);
 
 							if (Types.BLOB == type) {
-								final BlobField field = FACTORY
+								BlobField field = FACTORY
 										.createBlobField();
 
 								field.setName(name);
 
-								final Blob value = dbRs.getBlob(j);
+								Blob value = dbRs.getBlob(j);
 
 								if (value != null) {
-									final ByteBuffer buf = ByteBuffer
+									ByteBuffer buf = ByteBuffer
 											.allocate((int) value.length());
 
-									final BufferedInputStream in = new BufferedInputStream(
+									BufferedInputStream in = new BufferedInputStream(
 											value.getBinaryStream());
 
 									int i = in.read();
@@ -270,7 +270,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 											.printBase64Binary(buf.array()));
 								}
 
-								final JAXBElement<BlobField> fieldElement = FACTORY
+								JAXBElement<BlobField> fieldElement = FACTORY
 										.createRowBlob(field);
 
 								if (value == null)
@@ -278,17 +278,17 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 								row.getFieldElementList().add(fieldElement);
 							} else if (Types.CLOB == type) {
-								final ClobField field = FACTORY
+								ClobField field = FACTORY
 										.createClobField();
 
 								field.setName(name);
 
-								final Clob value = dbRs.getClob(j);
+								Clob value = dbRs.getClob(j);
 
 								if (value != null) {
-									final StringBuffer buf = new StringBuffer();
+									StringBuffer buf = new StringBuffer();
 
-									final BufferedReader reader = new BufferedReader(
+									BufferedReader reader = new BufferedReader(
 											value.getCharacterStream());
 
 									int i = reader.read();
@@ -303,7 +303,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 											.printString(buf.toString()));
 								}
 
-								final JAXBElement<ClobField> fieldElement = FACTORY
+								JAXBElement<ClobField> fieldElement = FACTORY
 										.createRowClob(field);
 
 								if (value == null)
@@ -311,15 +311,15 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 								row.getFieldElementList().add(fieldElement);
 							} else if (Types.DATE == type) {
-								final DateField field = FACTORY
+								DateField field = FACTORY
 										.createDateField();
 
 								field.setName(name);
 
-								final Date value = dbRs.getDate(j);
+								Date value = dbRs.getDate(j);
 
 								if (value != null) {
-									final Calendar cal = Calendar.getInstance();
+									Calendar cal = Calendar.getInstance();
 
 									cal.setTime(value);
 
@@ -327,7 +327,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 											.printDate(cal));
 								}
 
-								final JAXBElement<DateField> fieldElement = FACTORY
+								JAXBElement<DateField> fieldElement = FACTORY
 										.createRowDate(field);
 
 								if (value == null)
@@ -335,17 +335,17 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 								row.getFieldElementList().add(fieldElement);
 							} else if (Types.DECIMAL == type) {
-								final DecField field = FACTORY.createDecField();
+								DecField field = FACTORY.createDecField();
 
 								field.setName(name);
 
-								final BigDecimal value = dbRs.getBigDecimal(j);
+								BigDecimal value = dbRs.getBigDecimal(j);
 
 								if (value != null)
 									field.setContent(DatatypeConverter
 											.printDecimal(value));
 
-								final JAXBElement<DecField> fieldElement = FACTORY
+								JAXBElement<DecField> fieldElement = FACTORY
 										.createRowDec(field);
 
 								if (value == null)
@@ -353,29 +353,29 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 								row.getFieldElementList().add(fieldElement);
 							} else if (Types.INTEGER == type) {
-								final IntField field = FACTORY.createIntField();
+								IntField field = FACTORY.createIntField();
 
 								field.setName(name);
 
 								field.setContent(DatatypeConverter
 										.printInt(dbRs.getInt(j)));
 
-								final JAXBElement<IntField> fieldElement = FACTORY
+								JAXBElement<IntField> fieldElement = FACTORY
 										.createRowInt(field);
 
 								row.getFieldElementList().add(fieldElement);
 							} else if (Types.NUMERIC == type) {
-								final NumField field = FACTORY.createNumField();
+								NumField field = FACTORY.createNumField();
 
 								field.setName(name);
 
-								final BigDecimal value = dbRs.getBigDecimal(j);
+								BigDecimal value = dbRs.getBigDecimal(j);
 
 								if (value != null)
 									field.setContent(DatatypeConverter
 											.printDecimal(value));
 
-								final JAXBElement<NumField> fieldElement = FACTORY
+								JAXBElement<NumField> fieldElement = FACTORY
 										.createRowNum(field);
 
 								if (value == null)
@@ -383,17 +383,17 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 								row.getFieldElementList().add(fieldElement);
 							} else if (Types.VARCHAR == type) {
-								final StrField field = FACTORY.createStrField();
+								StrField field = FACTORY.createStrField();
 
 								field.setName(name);
 
-								final String value = dbRs.getString(j);
+								String value = dbRs.getString(j);
 
 								if (value != null)
 									field.setContent(DatatypeConverter
 											.printString(value));
 
-								final JAXBElement<StrField> fieldElement = FACTORY
+								JAXBElement<StrField> fieldElement = FACTORY
 										.createRowStr(field);
 
 								if (value == null)
@@ -418,7 +418,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 				dbCnt = dbStmt.getUpdateCount();
 			}
 
-			final StringWriter writer = new StringWriter();
+			StringWriter writer = new StringWriter();
 
 			marshaller.marshal(res, writer);
 
@@ -427,7 +427,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 			proxy.setPayload(msg, writer.toString());
 
 			return msg;
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new ActionProcessingException(MESSAGE, e);
 		} finally {
 
@@ -435,7 +435,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 				try {
 					dbRs.close();
-				} catch (final SQLException e) {
+				} catch (SQLException e) {
 					throw new ActionProcessingException(MESSAGE, e);
 				} finally {
 
@@ -443,7 +443,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 						try {
 							dbStmt.close();
-						} catch (final SQLException e) {
+						} catch (SQLException e) {
 							throw new ActionProcessingException(MESSAGE, e);
 						} finally {
 
@@ -451,7 +451,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 								try {
 									dbConn.close();
-								} catch (final SQLException e) {
+								} catch (SQLException e) {
 									throw new ActionProcessingException(
 											MESSAGE, e);
 								}
@@ -470,7 +470,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 				try {
 					dbStmt.close();
-				} catch (final SQLException e) {
+				} catch (SQLException e) {
 					throw new ActionProcessingException(MESSAGE, e);
 				} finally {
 
@@ -478,7 +478,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 						try {
 							dbConn.close();
-						} catch (final SQLException e) {
+						} catch (SQLException e) {
 							throw new ActionProcessingException(MESSAGE, e);
 						}
 
@@ -492,7 +492,7 @@ public final class DbAction extends AbstractActionPipelineProcessor {
 
 				try {
 					dbConn.close();
-				} catch (final SQLException e) {
+				} catch (SQLException e) {
 					throw new ActionProcessingException(MESSAGE, e);
 				}
 
